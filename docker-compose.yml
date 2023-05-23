@@ -1,0 +1,30 @@
+# version of docker-compose syntax that we're using
+# if there is newer version it will stay on 3.9 and will not break
+version: '3.9'
+
+# main block, this will be our api, db etc..
+services:
+  # name of service
+  app:
+    # build docker file from current directory
+    build:
+      context: .
+      # if we are running using docker-compose set build arg DEV to true
+      args:
+        - DEV=true
+    
+    # maps port 8000 of our local machine to port 8000 inside container
+    ports:
+      - "8000:8000"
+    
+    # volumes section maps the ./app directory from the local project to the /app directory inside the container
+    volumes:
+      # mapping app dir from our local project to app inside container
+      # this enables live code updates without needing to rebuild the container.
+      - ./app:/app
+    
+    # command used to run a service
+    # if we don't specify command this will be default
+    # beow command runs the Django development server
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"

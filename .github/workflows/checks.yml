@@ -1,0 +1,38 @@
+--- # means it's a yml file
+
+name: Checks  # this name will appear in Github Actions
+
+on: [push]  # trigger which will run jobs on push
+
+jobs:
+  # id of the job
+  test-list:
+    # this name will be seen on github actions interface
+    name: Test and Lint
+    # this is runner on which we will run our job
+    # all available runners are visible on Github Actions website
+    # linux ubuntu is recommended for Python projects
+    # docker-compose comes preinstalled on ubuntu
+    runs-on: ubuntu-20.04
+    # steps are executed in order
+    # if any of steps fail, the job itself will fail
+    steps:
+      # name of step, visible on UI
+      - name: Docker Login
+        # uses allows us to use premade action provided in Github Actions Marketplace [https://github.com/marketplace/actions/docker-login]
+        # we use docker/login-action@v2.1.0 which is used to login to Docker
+        # @ specifies version of that action
+        uses: docker/login-action@v2.1.0
+
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Checkout
+        # this checks out our code to make sure our code is available to run next steps
+        uses: actions/checkout@v2
+
+      - name: Test
+        run: docker-compose run --rm app sh -c "python manage.py test"
+      - name: Lint
+        run: docker-compose run --rm app sh -c "flake8"
