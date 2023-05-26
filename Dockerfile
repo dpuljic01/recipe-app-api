@@ -6,6 +6,7 @@ LABEL maintainer="dpuljic01@gmail.com"
 
 # python logs will be printed directly on console and not buffered
 ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
 
 # copies requirements and code from local machine into the docker image
 # workdir is default dir from which commands run (eg. python manage.py ...)
@@ -31,12 +32,18 @@ ARG DEV=false
 # disabled-password - no need to login
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
+    # install postgres client, needed for psycopg2 package
+    apk add --update --no-cache postgresql-client && \
+    # groups packages under name tmp-build-deps which we use to remove packages later
+    # we need tmp-build-deps to be able to install psycopg2 inside requirements.txt
+    apk add --update --no-cache --virtual .tmp-build-deps build-base postgresql-dev musl-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     # shell statement, install dev deps if DEV=true
     if [ "${DEV}" = "true" ]; \
         then /py/bin/pip install -r /tmp/requirements.dev.txt; \
     fi && \
     rm -rf /tmp && \
+    apk del .tmp-build-deps && \
     adduser \
         --disabled-password \
         --no-create-home \

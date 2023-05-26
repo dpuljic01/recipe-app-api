@@ -18,6 +18,7 @@ services:
       - "8000:8000"
     
     # volumes section maps the ./app directory from the local project to the /app directory inside the container
+    # this syncs any changes made in our local dir with container and vice-versa
     volumes:
       # mapping app dir from our local project to app inside container
       # this enables live code updates without needing to rebuild the container.
@@ -25,6 +26,31 @@ services:
     
     # command used to run a service
     # if we don't specify command this will be default
-    # beow command runs the Django development server
+    # below command runs the Django development server
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
+    environment:
+      # bellow variables tell our app how to connect to database
+      # should match values inside db service, DB_HOST is actual database service name
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASSWORD=changeme
+    depends_on:
+      # db service should start before app
+      - db
+
+  db:
+    # image from Docker Hub that we will use for postgres
+    image: postgres:13-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    environment:
+      # postgres variables set init DB configuration, for local development
+      # on start of service it create database with below details
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+
+volumes:
+  dev-db-data:
