@@ -10,3 +10,5 @@ Recipe API: Django & DRF
 - `docker-compose up` - starts services defined in `docker-compose` file
 - `docker-compose down` - clear containers
 - `docker-compose run --rm app sh -c "python manage.py wait_for_db"` - custom management command to check if DB is available
+- `docker volume ls` - list all volumes on our system
+- `docker volume rm <name-of-volume>` - removes volume
