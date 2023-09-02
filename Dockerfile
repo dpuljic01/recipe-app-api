@@ -52,8 +52,3 @@ RUN python -m venv /py && \
 # updates env variable inside image, we add our virtual env to PATH
 # enables execution of commands without specifying full path
 ENV PATH="/py/bin:$PATH"
-
-# specifies user that we are switching to
-# everything above this was done with root user
-# everything after this (every container created) will use our custom django-user
-USER django-user
